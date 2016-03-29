@@ -1,0 +1,9 @@
+Analyse indeholder: 
+- Domænemodel
+- Systemsekvensdiagram
+- Operationskontrakt
+
+Navngivningspolitik:
+	Domænemodel: DOM-[nummer] for [use case nummer] - [use case navn]
+	Systemsekvensdiagram: SSD-[nummer] for [use case nummer] - [use case navn]
+	Operationskontrakt: OC-[nummer] for [SSD nummer] - [Systemoperations navn]
