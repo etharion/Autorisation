@@ -1,0 +1,41 @@
+CREATE TABLE organisation (
+id INT IDENTITY,
+name VARCHAR(200) NOT NULL,
+parent_id INT REFERENCES organisation(id) ON DELETE CASCADE
+);
+
+CREATE UNIQUE INDEX uidx_organisation_name ON organisation(name);
+
+CREATE TABLE user (
+user_id INT IDENTITY,
+user_password VARCHAR(200) NOT NULL
+);
+
+CREATE TABLE role (
+role_id INT IDENTITY,
+role_name VARCHAR(200) NOT NULL
+);
+
+CREATE UNIQUE INDEX uidx_role_name ON role(role_name);
+
+CREATE TABLE rights (
+rights_id INT IDENTITY,
+rights_name VARCHAR(200) NOT NULL
+);
+
+CREATE UNIQUE INDEX uidx_rights_name ON rights(rights_name);
+
+CREATE TABLE user_role (
+user_id : INT REFERENCES user(user_id) ON DELETE CASCADE,
+role_id : INT REFERENCES role(role_id) ON DELETE CASCADE
+);
+
+CREATE TABLE user_rights (
+user_id : INT REFERENCES user(user_id) ON DELETE CASCADE,
+rights_id : INT REFERENCES rights(rights_id) ON DELETE CASCADE
+);
+
+CREATE TABLE role_rights (
+role_id : INT REFERENCES role(role_id) ON DELETE CASCADE,
+rights_id : INT REFERENCES rights(rights_id) ON DELETE CASCADE
+);
