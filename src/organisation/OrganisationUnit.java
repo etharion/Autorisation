@@ -30,7 +30,8 @@ public class OrganisationUnit {
 		this.parentId = parentId;
 	}
 	
-	public long getChildren(long orgId) {
-		return orgId;
+	@Override
+	public String toString() {
+		return "OrganizationUnit [id=" + id + ", name=" + name + ", parentId=" + parentId + "]";
 	}
 }
