@@ -1,11 +1,24 @@
 package organisation;
 
+import java.util.List;
+
 public interface Organisation {
 	
-	public long getChildren(long orgId);
+//	public void createOrganisation();
+//	
+//	public void editOrganisation();
+//	
+//	public void deleteOrganisation();
+//	
+//	public void showOrganisation();
 	
-	public void setName();
+	public OrganisationUnit getOrganisationUnit(long id);
 	
-	public void getName();
-
+	public List<OrganisationUnit> getChildren(long id);
+	
+	public List<Long> getAllChildren(long id);
+	
+	public List<OrganisationUnit> getAllOrganisationsWithoutParents();
+	
+	public List<OrganisationUnit> searchOrganisation(String search);
 }
