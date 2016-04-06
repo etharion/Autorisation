@@ -8,9 +8,9 @@
 
 <AnchorPane prefHeight="491.0" prefWidth="573.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8">
    <children>
-      <Button layoutX="92.0" layoutY="376.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="200.0" text="Create organisation" />
-      <Button layoutX="92.0" layoutY="408.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="200.0" text="Edit organisation" />
-      <Button layoutX="92.0" layoutY="440.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="200.0" text="Delete organisation" />
+      <Button layoutX="167.0" layoutY="376.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="200.0" text="Create organisation" />
+      <Button layoutX="167.0" layoutY="408.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="200.0" text="Edit organisation" />
+      <Button layoutX="167.0" layoutY="440.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="200.0" text="Delete organisation" />
       <TreeTableView layoutX="21.0" layoutY="14.0" prefHeight="343.0" prefWidth="534.0">
         <columns>
           <TreeTableColumn prefWidth="181.0" text="C1" />
