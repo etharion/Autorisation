@@ -26,16 +26,16 @@ rights_name VARCHAR(200) NOT NULL
 CREATE UNIQUE INDEX uidx_rights_name ON rights(rights_name);
 
 CREATE TABLE user_role (
-user_id : INT REFERENCES user(user_id) ON DELETE CASCADE,
-role_id : INT REFERENCES role(role_id) ON DELETE CASCADE
+user_id INT REFERENCES user(user_id) ON DELETE CASCADE,
+role_id INT REFERENCES role(role_id) ON DELETE CASCADE
 );
 
 CREATE TABLE user_rights (
-user_id : INT REFERENCES user(user_id) ON DELETE CASCADE,
-rights_id : INT REFERENCES rights(rights_id) ON DELETE CASCADE
+user_id INT REFERENCES user(user_id) ON DELETE CASCADE,
+rights_id INT REFERENCES rights(rights_id) ON DELETE CASCADE
 );
 
 CREATE TABLE role_rights (
-role_id : INT REFERENCES role(role_id) ON DELETE CASCADE,
-rights_id : INT REFERENCES rights(rights_id) ON DELETE CASCADE
+role_id INT REFERENCES role(role_id) ON DELETE CASCADE,
+rights_id INT REFERENCES rights(rights_id) ON DELETE CASCADE
 );
