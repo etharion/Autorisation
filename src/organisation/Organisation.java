@@ -2,6 +2,9 @@ package organisation;
 
 import java.util.List;
 
+import exceptions.PersistenceFailureException;
+import persistence.DataAccess;
+
 public interface Organisation {
 	
 //	public void createOrganisation();
@@ -12,13 +15,13 @@ public interface Organisation {
 //	
 //	public void showOrganisation();
 	
-	public OrganisationUnit getOrganisationUnit(long id);
+	public OrganisationUnit getOrganisationUnit(long id, DataAccess da) throws PersistenceFailureException;
 	
-	public List<OrganisationUnit> getChildren(long id);
+	public List<OrganisationUnit> getChildren(long id, DataAccess da);
 	
-	public List<Long> getAllChildren(long id);
+	public List<Long> getAllChildren(long id, DataAccess da);
 	
-	public List<OrganisationUnit> getAllOrganisationsWithoutParents();
+	public List<OrganisationUnit> getAllOrganisationsWithoutParents(DataAccess da);
 	
-	public List<OrganisationUnit> searchOrganisation(String search);
+	public List<OrganisationUnit> searchOrganisation(String search, DataAccess da);
 }

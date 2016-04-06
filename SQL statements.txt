@@ -1,0 +1,20 @@
+getOrganisationUnit:
+SELECT * FROM organisation WHERE id = ?
+
+getChildren:
+SELECT * FROM organisation WHERE parent_id = ?
+
+getAllChildren
+SELECT * FROM organisation WHERE id = ?
+WITH RECURSIVE tree (level, parent, child) AS
+(SELECT 1, parent_id AS parent, id as child FROM organisation where id = ?
+UNION
+SELECT level + 1, parent_id, id FROM organisation, tree WHERE parent_id = child)
+SELECT * FROM tree;
+
+getAllOrganisationsWithoutParents:
+SELECT * FROM organisation
+
+searchOrganisation:
+SELECT * FROM employees WHERE LOWER(name) LIKE ?
+statement.setString(1, "%" + name + "%");
