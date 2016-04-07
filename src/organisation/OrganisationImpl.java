@@ -45,8 +45,22 @@ public class OrganisationImpl implements Organisation {
 	}
 
 	@Override
-	public List<OrganisationUnit> getChildren(long id, DataAccess da) {
-		// TODO Auto-generated method stub
+	public List<OrganisationUnit> getChildren(long id, DataAccess da) throws PersistenceFailureException {
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		OrganisationUnit orgUnit = new OrganisationUnit();
+		
+		try {
+			statement = da.getConnection().prepareStatement(GET_CHILDREN);
+			resultSet = statement.executeQuery();
+			while(resultSet.next()) {
+				
+			}
+		} catch (SQLException e) {
+			throw new PersistenceFailureException("Persistence Failure - didn't get organisation unit");
+		}
+		
+		da.close();
 		return null;
 	}
 
