@@ -2,27 +2,29 @@ package security;
 
 import java.util.List;
 
+import exceptions.PersistenceFailureException;
 import organisation.OrganisationUnit;
+import persistence.DataAccess;
 import security.Permission;
 import security.User;
 import security.UserPermission;
 
 public interface Security {
 	
-	public boolean login(String userId, String encryptedPassword);
+	public boolean login(String userId, String encryptedPassword,DataAccess da) throws PersistenceFailureException;
 	
-	public User getUser(String userId);
+	public User getUser(int userId,DataAccess da) throws PersistenceFailureException;
 	
 	public String getIdOfUserLoggedIn();
 	
-	public Permission getPermission(int permissionId);
+	public Permission getPermission(int permissionId,DataAccess da);
 
-	public Permission getPermission(String permissionName);
+	public Permission getPermission(String permissionName,DataAccess da);
 	
-	public List<UserPermission> getAllPermissionsForUser(String userId);
+	public List<UserPermission> getAllPermissionsForUser(String userId,DataAccess da);
 
-	public OrganisationUnit getOrganizationUnitForUserPermission(String userId, int permissionId);
+	public OrganisationUnit getOrganizationUnitForUserPermission(String userId, int permissionId,DataAccess da);
 	
-	public boolean hasUserAccessToOrganizationUnit(String userId, int permissionId, long organizationId);
+	public boolean hasUserAccessToOrganizationUnit(String userId, int permissionId, long organizationId,DataAccess da);
 	
 }

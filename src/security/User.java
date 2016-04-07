@@ -6,7 +6,7 @@ import java.util.Base64;
 
 public class User {
 	
-	private String id;
+	private int id;
 	private String encryptedPassword;
 	private String email;
 	
@@ -16,11 +16,11 @@ public class User {
 		return Base64.getEncoder().encodeToString(mdbytes);
 	}
 
-	public String getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
