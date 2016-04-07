@@ -22,24 +22,24 @@ role_name VARCHAR(200) NOT NULL
 
 CREATE UNIQUE INDEX uidx_role_name ON role(role_name);
 
-CREATE TABLE rights (
-rights_id INT IDENTITY,
-rights_name VARCHAR(200) NOT NULL
+CREATE TABLE permission (
+permission_id INT IDENTITY,
+permission_name VARCHAR(200) NOT NULL
 );
 
-CREATE UNIQUE INDEX uidx_rights_name ON rights(rights_name);
+CREATE UNIQUE INDEX uidx_permission_name ON permission(permission_name);
 
 CREATE TABLE user_role (
 user_id INT REFERENCES user(user_id) ON DELETE CASCADE,
 role_id INT REFERENCES role(role_id) ON DELETE CASCADE
 );
 
-CREATE TABLE user_rights (
+CREATE TABLE user_permission (
 user_id INT REFERENCES user(user_id) ON DELETE CASCADE,
-rights_id INT REFERENCES rights(rights_id) ON DELETE CASCADE
+permission_id INT REFERENCES permission(permission_id) ON DELETE CASCADE
 );
 
-CREATE TABLE role_rights (
+CREATE TABLE role_permission (
 role_id INT REFERENCES role(role_id) ON DELETE CASCADE,
-rights_id INT REFERENCES rights(rights_id) ON DELETE CASCADE
+permission_id INT REFERENCES permission(permission_id) ON DELETE CASCADE
 );
