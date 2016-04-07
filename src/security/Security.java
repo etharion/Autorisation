@@ -1,13 +1,10 @@
 package security;
 
+import java.util.HashMap;
 import java.util.List;
 
 import exceptions.PersistenceFailureException;
 import organisation.OrganisationUnit;
-import persistence.DataAccess;
-import security.Permission;
-import security.User;
-import security.UserPermission;
 
 public interface Security {
 	
@@ -18,10 +15,12 @@ public interface Security {
 	public int getIdOfUserLoggedIn();
 	
 	public Permission getPermission(int permissionId) throws PersistenceFailureException;
+	
+	public HashMap<Integer, Permission> getAllPermissions() throws PersistenceFailureException;
 
 	public List<Permission> searchPermission(String searchString) throws PersistenceFailureException;
 	
-	public List<UserPermission> getAllPermissionsForUser(String userId);
+	public List<UserPermission> getAllPermissionsForUser(String userId) throws PersistenceFailureException;
 
 	public OrganisationUnit getOrganizationUnitForUserPermission(String userId, int permissionId);
 	
