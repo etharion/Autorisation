@@ -8,6 +8,7 @@ import java.util.List;
 
 import exceptions.PersistenceFailureException;
 import persistence.DataAccess;
+import persistence.DataAccessForSQL;
 
 public class OrganisationImpl implements Organisation {
 
@@ -19,9 +20,10 @@ public class OrganisationImpl implements Organisation {
 			+ "SELECT level + 1, parent_id, id FROM organisation, tree WHERE parent_id = child)" + "SELECT * FROM tree";
 	private final String GET_ALL_ORGANISATION_WITHOUT_PARENTS = "SELECT * FROM organisation";
 	private final String SEARCH_ORGANISATION = "SELECT * FROM organisation WHERE LOWER(name) LIKE ?";
+	DataAccessForSQL da = new DataAccessForSQL();
 
 	@Override
-	public OrganisationUnit getOrganisationUnit(long id, DataAccess da) throws PersistenceFailureException {
+	public OrganisationUnit getOrganisationUnit(long id) throws PersistenceFailureException {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		OrganisationUnit orgUnit = new OrganisationUnit();
@@ -47,7 +49,7 @@ public class OrganisationImpl implements Organisation {
 	}
 
 	@Override
-	public List<OrganisationUnit> getChildren(long id, DataAccess da) throws PersistenceFailureException {
+	public List<OrganisationUnit> getChildren(long id) throws PersistenceFailureException {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		List<OrganisationUnit> orgList = new ArrayList<>();
@@ -76,7 +78,7 @@ public class OrganisationImpl implements Organisation {
 	}
 
 	@Override
-	public List<OrganisationUnit> getAllChildren(long id, DataAccess da) throws PersistenceFailureException {
+	public List<OrganisationUnit> getAllChildren(long id) throws PersistenceFailureException {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		List<OrganisationUnit> orgList = new ArrayList<>();
@@ -105,7 +107,7 @@ public class OrganisationImpl implements Organisation {
 	}
 
 	@Override
-	public List<OrganisationUnit> getAllOrganisationsWithoutParents(DataAccess da) throws PersistenceFailureException {
+	public List<OrganisationUnit> getAllOrganisationsWithoutParents() throws PersistenceFailureException {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		List<OrganisationUnit> orgList = new ArrayList<>();
@@ -132,7 +134,7 @@ public class OrganisationImpl implements Organisation {
 	}
 
 	@Override
-	public List<OrganisationUnit> searchOrganisation(String search, DataAccess da) throws PersistenceFailureException {
+	public List<OrganisationUnit> searchOrganisation(String search) throws PersistenceFailureException {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		List<OrganisationUnit> orgList = new ArrayList<>();

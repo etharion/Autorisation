@@ -15,13 +15,13 @@ public interface Organisation {
 //	
 //	public void showOrganisation();
 	
-	public OrganisationUnit getOrganisationUnit(long id, DataAccess da) throws PersistenceFailureException;
+	public OrganisationUnit getOrganisationUnit(long id) throws PersistenceFailureException;
 	
-	public List<OrganisationUnit> getChildren(long id, DataAccess da) throws PersistenceFailureException;
+	public List<OrganisationUnit> getChildren(long id) throws PersistenceFailureException;
 	
-	public List<OrganisationUnit> getAllChildren(long id, DataAccess da) throws PersistenceFailureException;
+	public List<OrganisationUnit> getAllChildren(long id) throws PersistenceFailureException;
 	
-	public List<OrganisationUnit> getAllOrganisationsWithoutParents(DataAccess da) throws PersistenceFailureException;
+	public List<OrganisationUnit> getAllOrganisationsWithoutParents() throws PersistenceFailureException;
 	
-	public List<OrganisationUnit> searchOrganisation(String search, DataAccess da) throws PersistenceFailureException;
+	public List<OrganisationUnit> searchOrganisation(String search) throws PersistenceFailureException;
 }
