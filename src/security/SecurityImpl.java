@@ -10,6 +10,7 @@ import organisation.OrganisationUnit;
 import persistence.DataAccess;
 
 public class SecurityImpl implements Security {
+	private User userLoggedIn = null;
 	private final String GET_USER = "SELECT * FROM user";
 	private final String GET_USER_FROM_ID="SELECT * FROM user where id = ?";
 
@@ -27,8 +28,10 @@ public class SecurityImpl implements Security {
 				if (email == resultSet.getString("EMAIL")
 						& encryptedPassword == resultSet.getString("USER_PASSWORD")) {
 					loginSuccess = true;
+					userLoggedIn = getUser(resultSet.getInt("USER_ID"),da);
 				} else {
 					loginSuccess = false;
+					userLoggedIn = null;
 				}
 
 			}
@@ -53,6 +56,7 @@ public class SecurityImpl implements Security {
 			statement.setInt(1, userId);
 			while (resultSet.next()) {
 				user.setEmail(resultSet.getString("EMAIL"));
+				user.setId(userId);
 
 			}
 		} catch (SQLException e) {
@@ -64,9 +68,12 @@ public class SecurityImpl implements Security {
 	}
 
 	@Override
-	public String getIdOfUserLoggedIn() {
-		// TODO Auto-generated method stub
-		return null;
+	public int getIdOfUserLoggedIn() {
+		int Id = -1;
+		if(userLoggedIn!=null){
+			Id = userLoggedIn.getId();
+		}
+		return Id;
 	}
 
 	@Override

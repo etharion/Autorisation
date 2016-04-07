@@ -15,7 +15,7 @@ public interface Security {
 	
 	public User getUser(int userId,DataAccess da) throws PersistenceFailureException;
 	
-	public String getIdOfUserLoggedIn();
+	public int getIdOfUserLoggedIn();
 	
 	public Permission getPermission(int permissionId,DataAccess da);
 
