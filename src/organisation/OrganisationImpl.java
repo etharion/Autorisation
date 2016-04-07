@@ -3,6 +3,7 @@ package organisation;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import exceptions.PersistenceFailureException;
@@ -48,12 +49,18 @@ public class OrganisationImpl implements Organisation {
 	public List<OrganisationUnit> getChildren(long id, DataAccess da) throws PersistenceFailureException {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
-		OrganisationUnit orgUnit = new OrganisationUnit();
+		List<OrganisationUnit> orgList = new ArrayList<>();
 		
 		try {
 			statement = da.getConnection().prepareStatement(GET_CHILDREN);
 			resultSet = statement.executeQuery();
 			while(resultSet.next()) {
+				OrganisationUnit orgUnit =  new OrganisationUnit();
+				orgUnit.setId(resultSet.getInt("id"));
+				orgUnit.setName(resultSet.getString("name"));
+				orgUnit.setParentId(resultSet.getInt("parent_id"));
+				
+				orgList.add(orgUnit);
 				
 			}
 		} catch (SQLException e) {
@@ -61,24 +68,84 @@ public class OrganisationImpl implements Organisation {
 		}
 		
 		da.close();
-		return null;
+		return orgList;
 	}
 
 	@Override
-	public List<Long> getAllChildren(long id, DataAccess da) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<OrganisationUnit> getAllChildren(long id, DataAccess da) throws PersistenceFailureException {
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		List<OrganisationUnit> orgList = new ArrayList<>();
+		
+		try {
+			statement = da.getConnection().prepareStatement(GET_ALL_CHILDREN);
+			resultSet = statement.executeQuery();
+			while(resultSet.next()) {
+				OrganisationUnit orgUnit =  new OrganisationUnit();
+				orgUnit.setId(resultSet.getInt("id"));
+				orgUnit.setName(resultSet.getString("name"));
+				orgUnit.setParentId(resultSet.getInt("parent_id"));
+				
+				orgList.add(orgUnit);
+				
+			}
+		} catch (SQLException e) {
+			throw new PersistenceFailureException("Persistence Failure - didn't get organisation unit");
+		}
+		
+		da.close();
+		return orgList;
 	}
 
 	@Override
-	public List<OrganisationUnit> getAllOrganisationsWithoutParents(DataAccess da) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<OrganisationUnit> getAllOrganisationsWithoutParents(DataAccess da) throws PersistenceFailureException {
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		List<OrganisationUnit> orgList = new ArrayList<>();
+		
+		try {
+			statement = da.getConnection().prepareStatement(GET_ALL_ORGANISATION_WITHOUT_PARENTS);
+			resultSet = statement.executeQuery();
+			while(resultSet.next()) {
+				OrganisationUnit orgUnit =  new OrganisationUnit();
+				orgUnit.setId(resultSet.getInt("id"));
+				orgUnit.setName(resultSet.getString("name"));
+				
+				orgList.add(orgUnit);
+				
+			}
+		} catch (SQLException e) {
+			throw new PersistenceFailureException("Persistence Failure - didn't get organisation unit");
+		}
+		
+		da.close();
+		return orgList;
 	}
 
 	@Override
-	public List<OrganisationUnit> searchOrganisation(String search, DataAccess da) {
-		// TODO Auto-generated method stub
+	public List<OrganisationUnit> searchOrganisation(String search, DataAccess da) throws PersistenceFailureException {
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		List<OrganisationUnit> orgList = new ArrayList<>();
+		
+		try {
+			statement = da.getConnection().prepareStatement(SEARCH_ORGANISATION);
+			statement.setString(1, "%" + search + "%");
+			resultSet = statement.executeQuery();
+			while(resultSet.next()) {
+				OrganisationUnit orgUnit =  new OrganisationUnit();
+				orgUnit.setId(resultSet.getInt("id"));
+				orgUnit.setName(resultSet.getString("name"));
+				orgUnit.setParentId(resultSet.getInt("parent_id"));
+				
+				orgList.add(orgUnit);
+				
+			}
+		} catch (SQLException e) {
+			throw new PersistenceFailureException("Persistence Failure - didn't get organisation unit");
+		}
+		
+		da.close();
 		return null;
 	}
 

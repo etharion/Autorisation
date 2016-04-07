@@ -7,9 +7,13 @@ parent_id INT REFERENCES organisation(id) ON DELETE CASCADE
 CREATE UNIQUE INDEX uidx_organisation_name ON organisation(name);
 
 CREATE TABLE user (
-user_id INT IDENTITY,
+user_id iNT IDENTITY,
 user_password VARCHAR(200) NOT NULL
 );
+
+ALTER TABLE user ADD email VARCHAR(255)
+
+CREATE UNIQUE INDEX uidx_email ON user(email);
 
 CREATE TABLE role (
 role_id INT IDENTITY,

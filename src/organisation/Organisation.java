@@ -19,9 +19,9 @@ public interface Organisation {
 	
 	public List<OrganisationUnit> getChildren(long id, DataAccess da) throws PersistenceFailureException;
 	
-	public List<Long> getAllChildren(long id, DataAccess da);
+	public List<OrganisationUnit> getAllChildren(long id, DataAccess da) throws PersistenceFailureException;
 	
-	public List<OrganisationUnit> getAllOrganisationsWithoutParents(DataAccess da);
+	public List<OrganisationUnit> getAllOrganisationsWithoutParents(DataAccess da) throws PersistenceFailureException;
 	
-	public List<OrganisationUnit> searchOrganisation(String search, DataAccess da);
+	public List<OrganisationUnit> searchOrganisation(String search, DataAccess da) throws PersistenceFailureException;
 }
