@@ -17,9 +17,9 @@ public interface Security {
 	
 	public int getIdOfUserLoggedIn();
 	
-	public Permission getPermission(int permissionId,DataAccess da);
+	public Permission getPermission(int permissionId,DataAccess da) throws PersistenceFailureException;
 
-	public Permission getPermission(String permissionName,DataAccess da);
+	public List<Permission> searchPermission(String searchString,DataAccess da) throws PersistenceFailureException;
 	
 	public List<UserPermission> getAllPermissionsForUser(String userId,DataAccess da);
 
