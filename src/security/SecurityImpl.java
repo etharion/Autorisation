@@ -12,29 +12,33 @@ import persistence.DataAccess;
 
 public class SecurityImpl implements Security {
 	private User userLoggedIn = null;
+	DataAccess da;
 	private final String GET_USER = "SELECT * FROM user";
-	private final String GET_USER_FROM_ID="SELECT * FROM user where id = ?";
-	private final String GET_PERMISSION_FROM_ID ="SELECT * FROM permission WHERE permission_id = ?";
-	private final String SEARCH_PERMISSION ="SELECT * FROM permission WHERE permission_name LIKE '%?%'";
+	private final String GET_USER_FROM_ID = "SELECT * FROM user where id = ?";
+	private final String GET_PERMISSION_FROM_ID = "SELECT * FROM permission WHERE permission_id = ?";
+	private final String SEARCH_PERMISSION = "SELECT * FROM permission WHERE permission_name LIKE '%?%'";
 
 	@Override
-	public boolean login(String email, String encryptedPassword, DataAccess da) throws PersistenceFailureException {
+	public boolean login(String email, String encryptedPassword) throws PersistenceFailureException {
 		boolean loginSuccess = false;
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
+		int userId;
 
 		try {
 			statement = da.getConnection().prepareStatement(GET_USER);
 			resultSet = statement.executeQuery();
 			while (resultSet.next()) {
 
-				if (email == resultSet.getString("EMAIL")
-						& encryptedPassword == resultSet.getString("USER_PASSWORD")) {
+				if (email == resultSet.getString("EMAIL") & encryptedPassword == resultSet.getString("USER_PASSWORD")) {
 					loginSuccess = true;
-					userLoggedIn = getUser(resultSet.getInt("USER_ID"),da);
+					userId = resultSet.getInt("USER_ID");
+					da.close();
+					userLoggedIn = getUser(userId);
 				} else {
 					loginSuccess = false;
 					userLoggedIn = null;
+					da.close();
 				}
 
 			}
@@ -42,12 +46,12 @@ public class SecurityImpl implements Security {
 			da.close();
 			throw new PersistenceFailureException("Persistence Failure - didn't get user data");
 		}
-		da.close();
+		
 		return loginSuccess;
 	}
 
 	@Override
-	public User getUser(int userId, DataAccess da) throws PersistenceFailureException {
+	public User getUser(int userId) throws PersistenceFailureException {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		User user = new User();
@@ -73,14 +77,14 @@ public class SecurityImpl implements Security {
 	@Override
 	public int getIdOfUserLoggedIn() {
 		int Id = -1;
-		if(userLoggedIn!=null){
+		if (userLoggedIn != null) {
 			Id = userLoggedIn.getId();
 		}
 		return Id;
 	}
 
 	@Override
-	public Permission getPermission(int permissionId, DataAccess da) throws PersistenceFailureException {
+	public Permission getPermission(int permissionId) throws PersistenceFailureException {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		Permission permission = new Permission();
@@ -100,21 +104,20 @@ public class SecurityImpl implements Security {
 		}
 		da.close();
 		return permission;
-		
+
 	}
 
 	@Override
-	public List<Permission> searchPermission(String searchString, DataAccess da) throws PersistenceFailureException {
+	public List<Permission> searchPermission(String searchString) throws PersistenceFailureException {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		List<Permission> permissionList = new ArrayList();
-
 
 		try {
 			statement = da.getConnection().prepareStatement(SEARCH_PERMISSION);
 			resultSet = statement.executeQuery();
 			statement.setString(1, searchString);
-			
+
 			while (resultSet.next()) {
 				Permission permission = new Permission();
 				permission.setName(resultSet.getString("PERMISSION_NAME"));
@@ -131,20 +134,19 @@ public class SecurityImpl implements Security {
 	}
 
 	@Override
-	public List<UserPermission> getAllPermissionsForUser(String userId, DataAccess da) {
+	public List<UserPermission> getAllPermissionsForUser(String userId) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public OrganisationUnit getOrganizationUnitForUserPermission(String userId, int permissionId, DataAccess da) {
+	public OrganisationUnit getOrganizationUnitForUserPermission(String userId, int permissionId) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public boolean hasUserAccessToOrganizationUnit(String userId, int permissionId, long organizationId,
-			DataAccess da) {
+	public boolean hasUserAccessToOrganizationUnit(String userId, int permissionId, long organizationId) {
 		// TODO Auto-generated method stub
 		return false;
 	}
