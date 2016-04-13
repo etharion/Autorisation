@@ -4,14 +4,14 @@ import organisation.OrganisationUnit;
 
 public class UserPermission {
 	
-	private String userId;
+	private int userId;
 	private Permission permission;
 	private OrganisationUnit organizationUnit;
 	
-	public String getUserId() {
+	public int getUserId() {
 		return userId;
 	}
-	public void setUserId(String userId) {
+	public void setUserId(int userId) {
 		this.userId = userId;
 	}
 	public Permission getPermission() {

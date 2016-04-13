@@ -8,7 +8,7 @@ import organisation.OrganisationUnit;
 
 public interface Security {
 	
-	public boolean login(String userId, String encryptedPassword) throws PersistenceFailureException;
+	public boolean login(String email, String encryptedPassword) throws PersistenceFailureException;
 	
 	public User getUser(int userId) throws PersistenceFailureException;
 	
@@ -20,10 +20,14 @@ public interface Security {
 
 	public List<Permission> searchPermission(String searchString) throws PersistenceFailureException;
 	
-	public List<UserPermission> getAllPermissionsForUser(String userId) throws PersistenceFailureException;
+	public List<UserPermission> getAllPermissionsForUser(int userId) throws PersistenceFailureException;
 
-	public OrganisationUnit getOrganizationUnitForUserPermission(String userId, int permissionId);
+	public OrganisationUnit getOrganizationUnitForUser(int userId) throws PersistenceFailureException;
 	
-	public boolean hasUserAccessToOrganizationUnit(String userId, int permissionId, long organizationId);
+	public OrganisationUnit getOrganisationUnit(int id) throws PersistenceFailureException;
+	
+	public boolean hasUserAccessToOrganizationUnit(int userId, int permissionId, long organizationId) throws PersistenceFailureException;
+	
+	public boolean hasUserPermission(int userId, int permissionId) throws PersistenceFailureException;
 	
 }

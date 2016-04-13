@@ -10,38 +10,46 @@ import java.util.List;
 import exceptions.PersistenceFailureException;
 import organisation.OrganisationUnit;
 import persistence.DataAccess;
+import persistence.DataAccessForSQL;
 
 public class SecurityImpl implements Security {
 	private User userLoggedIn = null;
-	DataAccess da;
+	DataAccessForSQL da;
 	private final String GET_USER = "SELECT * FROM user";
-	private final String GET_USER_FROM_ID = "SELECT * FROM user where id = ?";
+	private final String GET_USER_FROM_ID = "SELECT * FROM user where user_id = ?";
 	private final String GET_PERMISSION_FROM_ID = "SELECT * FROM permission WHERE permission_id = ?";
 	private final String GET_ALL_PERMISSIONS = "SELECT * FROM permission";
 	private final String SEARCH_PERMISSION = "SELECT * FROM permission WHERE permission_name LIKE '%?%'";
 	private final String GET_ALL_PERMISSIONS_FOR_USER = "SELECT * FROM user_permission WHERE user_id = ?";
-
+	private final String GET_USER_ORGANISATION = "SELECT * FROM user_organisation WHERE user_id = ?";
+	private final String GET_ORGANISATION = "SELECT * FROM organisation WHERE id = ?";
+	private final String CHECK_ORGANISATION = "SELECT * FROM user_organisation WHERE user_id = ?";
+	private final String CHECK_PERMISSION = "SELECT * FROM user_permission WHERE user_id = ?";
+	
 	@Override
 	public boolean login(String email, String encryptedPassword) throws PersistenceFailureException {
 		boolean loginSuccess = false;
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		int userId;
+		da = new DataAccessForSQL();
 
 		try {
 			statement = da.getConnection().prepareStatement(GET_USER);
 			resultSet = statement.executeQuery();
 			while (resultSet.next()) {
-
-				if (email == resultSet.getString("EMAIL") & encryptedPassword == resultSet.getString("USER_PASSWORD")) {
+				String tempEmail = resultSet.getString("EMAIL");
+				String tempPassword = resultSet.getString("USER_PASSWORD");
+				if (encryptedPassword.equalsIgnoreCase(tempPassword) && email.equalsIgnoreCase(tempEmail)) {
 					loginSuccess = true;
 					userId = resultSet.getInt("USER_ID");
+					resultSet.close();
+					statement.close();
 					da.close();
 					userLoggedIn = getUser(userId);
 				} else {
 					loginSuccess = false;
 					userLoggedIn = null;
-					da.close();
 				}
 
 			}
@@ -55,10 +63,11 @@ public class SecurityImpl implements Security {
 
 	@Override
 	public User getUser(int userId) throws PersistenceFailureException {
-		PreparedStatement statement = null;
-		ResultSet resultSet = null;
+		PreparedStatement statement;
+		ResultSet resultSet;
 		User user = new User();
 		user.setId(userId);
+		da = new DataAccessForSQL();
 
 		try {
 			statement = da.getConnection().prepareStatement(GET_USER_FROM_ID);
@@ -66,12 +75,13 @@ public class SecurityImpl implements Security {
 			statement.setInt(1, userId);
 			while (resultSet.next()) {
 				user.setEmail(resultSet.getString("EMAIL"));
-				user.setId(userId);
 
 			}
+			resultSet.close();
+			statement.close();
 		} catch (SQLException e) {
-			da.close();
-			throw new PersistenceFailureException("Persistence Failure - didn't get user data");
+			e.printStackTrace();
+			throw new PersistenceFailureException("Persistence Failure - didn't get user");
 		}
 		da.close();
 		return user;
@@ -80,6 +90,7 @@ public class SecurityImpl implements Security {
 	@Override
 	public int getIdOfUserLoggedIn() {
 		int Id = -1;
+		System.out.println(userLoggedIn);
 		if (userLoggedIn != null) {
 			Id = userLoggedIn.getId();
 		}
@@ -92,6 +103,7 @@ public class SecurityImpl implements Security {
 		ResultSet resultSet = null;
 		Permission permission = new Permission();
 		permission.setId(permissionId);
+		da = new DataAccessForSQL();
 
 		try {
 			statement = da.getConnection().prepareStatement(GET_PERMISSION_FROM_ID);
@@ -112,17 +124,18 @@ public class SecurityImpl implements Security {
 	
 	@Override
 	public HashMap<Integer, Permission> getAllPermissions() throws PersistenceFailureException {
-		PreparedStatement statement = null;
-		ResultSet resultSet = null;
+		PreparedStatement statement;
+		ResultSet resultSet;
 		HashMap<Integer, Permission> permissionList = new HashMap<>();
+		da = new DataAccessForSQL();
 
 		try {
 			statement = da.getConnection().prepareStatement(GET_ALL_PERMISSIONS);
 			resultSet = statement.executeQuery();
 			while (resultSet.next()) {
 				Permission permission = new Permission();
-				permission.setId(resultSet.getInt("id"));
-				permission.setName(resultSet.getString("name"));
+				permission.setId(resultSet.getInt("permission_id"));
+				permission.setName(resultSet.getString("permission_name"));
 
 				permissionList.put(permission.getId(), permission);
 
@@ -130,7 +143,8 @@ public class SecurityImpl implements Security {
 			resultSet.close();
 			statement.close();
 		} catch (SQLException e) {
-			throw new PersistenceFailureException("Persistence Failure - didn't get organisation unit");
+			e.printStackTrace();
+			throw new PersistenceFailureException("Persistence Failure - didn't get permission");
 		}
 
 		da.close();
@@ -142,6 +156,7 @@ public class SecurityImpl implements Security {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		List<Permission> permissionList = new ArrayList();
+		da = new DataAccessForSQL();
 
 		try {
 			statement = da.getConnection().prepareStatement(SEARCH_PERMISSION);
@@ -164,21 +179,24 @@ public class SecurityImpl implements Security {
 	}
 
 	@Override
-	public List<UserPermission> getAllPermissionsForUser(String userId) throws PersistenceFailureException {
+	public List<UserPermission> getAllPermissionsForUser(int userId) throws PersistenceFailureException {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		List<UserPermission> permissionList = new ArrayList<>();
 		HashMap<Integer, Permission> permissions = getAllPermissions();
+		da = new DataAccessForSQL();
 
 		try {
 			statement = da.getConnection().prepareStatement(GET_ALL_PERMISSIONS_FOR_USER);
-			statement.setString(1, userId);
+			statement.setInt(1, userId);
 			resultSet = statement.executeQuery();
 			while (resultSet.next()) {
-				String permissionId = resultSet.getString("permission_id");
+				int permissionId = resultSet.getInt("permission_id");
 				if (permissions.containsKey(permissionId)) {
 					UserPermission userPermission = new UserPermission();
+					userPermission.setUserId(userId);
 					userPermission.setPermission(permissions.get(permissionId));
+					userPermission.setOrganizationUnit(getOrganisationUnit(userId));
 
 					permissionList.add(userPermission);
 				}
@@ -188,7 +206,8 @@ public class SecurityImpl implements Security {
 			resultSet.close();
 			statement.close();
 		} catch (SQLException e) {
-			throw new PersistenceFailureException("Persistence Failure - didn't get organisation unit");
+			e.printStackTrace();
+			throw new PersistenceFailureException("Persistence Failure - didn't get permissions for user");
 		}
 
 		da.close();
@@ -196,15 +215,115 @@ public class SecurityImpl implements Security {
 	}
 
 	@Override
-	public OrganisationUnit getOrganizationUnitForUserPermission(String userId, int permissionId) {
-		// TODO Auto-generated method stub
-		return null;
+	public OrganisationUnit getOrganizationUnitForUser(int userId) throws PersistenceFailureException {
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		OrganisationUnit orgUnit = new OrganisationUnit();
+		da = new DataAccessForSQL();
+		
+		try {
+			statement = da.getConnection().prepareStatement(GET_USER_ORGANISATION);
+			statement.setInt(1, userId);
+			resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				int orgId = resultSet.getInt("organisation_id");
+				orgUnit = getOrganisationUnit(orgId);
+				
+			}
+			resultSet.close();
+			statement.close();
+			
+		} catch (SQLException e) {
+			throw new PersistenceFailureException("Persistence Failure - didn't get organisation unit");
+		}
+
+		da.close();
+		return orgUnit;
+	}
+	
+	@Override
+	public OrganisationUnit getOrganisationUnit(int id) throws PersistenceFailureException {
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		OrganisationUnit orgUnit = new OrganisationUnit();
+		da = new DataAccessForSQL();
+		
+		try {
+			statement = da.getConnection().prepareStatement(GET_ORGANISATION);
+			statement.setInt(1, id);
+			resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				orgUnit.setId(resultSet.getInt("id"));
+				orgUnit.setName(resultSet.getString("name"));
+			}
+			resultSet.close();
+			statement.close();
+			
+		} catch (SQLException e) {
+			throw new PersistenceFailureException("Persistence Failure - didn't get organisation unit");
+		}
+
+		da.close();
+		return orgUnit;
 	}
 
 	@Override
-	public boolean hasUserAccessToOrganizationUnit(String userId, int permissionId, long organizationId) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean hasUserAccessToOrganizationUnit(int userId, int permissionId, long organizationId) throws PersistenceFailureException {
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		boolean hasAccess = false;
+		da = new DataAccessForSQL();
+		
+		try {
+			statement = da.getConnection().prepareStatement(GET_ORGANISATION);
+			statement.setInt(1, userId);
+			resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				if(organizationId == resultSet.getLong("organisation_id")) {
+					resultSet.close();
+					statement.close();
+					da.close();
+					hasAccess = hasUserPermission(userId, permissionId);
+				} else {
+					hasAccess = false;
+					resultSet.close();
+					statement.close();
+					da.close();
+				}
+			}
+		} catch (SQLException e) {
+			throw new PersistenceFailureException("Persistence Failure - didn't get organisation unit");
+		}
+
+		return hasAccess;
 	}
 
+	@Override
+	public boolean hasUserPermission(int userId, int permissionId) throws PersistenceFailureException {
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		boolean hasPermission = false;
+		da = new DataAccessForSQL();
+		
+		try {
+			statement = da.getConnection().prepareStatement(CHECK_PERMISSION);
+			statement.setInt(1, userId);
+			resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				if(permissionId == resultSet.getInt("permission_id")) {
+					hasPermission = true;
+				} else {
+					hasPermission = false;
+				}
+			}
+			resultSet.close();
+			statement.close();
+			
+		} catch (SQLException e) {
+			throw new PersistenceFailureException("Persistence Failure - didn't get organisation unit");
+		}
+
+		da.close();
+		return hasPermission;
+	}
 }

@@ -20,13 +20,14 @@ public class OrganisationImpl implements Organisation {
 			+ "SELECT level + 1, parent_id, id FROM organisation, tree WHERE parent_id = child)" + "SELECT * FROM tree";
 	private final String GET_ALL_ORGANISATION_WITHOUT_PARENTS = "SELECT * FROM organisation";
 	private final String SEARCH_ORGANISATION = "SELECT * FROM organisation WHERE LOWER(name) LIKE ?";
-	DataAccessForSQL da = new DataAccessForSQL();
+	DataAccessForSQL da;
 
 	@Override
 	public OrganisationUnit getOrganisationUnit(long id) throws PersistenceFailureException {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		OrganisationUnit orgUnit = new OrganisationUnit();
+		da = new DataAccessForSQL();
 
 		try {
 			statement = da.getConnection().prepareStatement(GET_ORGANISATIONUNIT);
@@ -53,6 +54,7 @@ public class OrganisationImpl implements Organisation {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		List<OrganisationUnit> orgList = new ArrayList<>();
+		da = new DataAccessForSQL();
 
 		try {
 			statement = da.getConnection().prepareStatement(GET_CHILDREN);
@@ -82,6 +84,7 @@ public class OrganisationImpl implements Organisation {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		List<OrganisationUnit> orgList = new ArrayList<>();
+		da = new DataAccessForSQL();
 
 		try {
 			statement = da.getConnection().prepareStatement(GET_ALL_CHILDREN);
@@ -111,6 +114,7 @@ public class OrganisationImpl implements Organisation {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		List<OrganisationUnit> orgList = new ArrayList<>();
+		da = new DataAccessForSQL();
 
 		try {
 			statement = da.getConnection().prepareStatement(GET_ALL_ORGANISATION_WITHOUT_PARENTS);
@@ -138,6 +142,7 @@ public class OrganisationImpl implements Organisation {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		List<OrganisationUnit> orgList = new ArrayList<>();
+		da = new DataAccessForSQL();
 
 		try {
 			statement = da.getConnection().prepareStatement(SEARCH_ORGANISATION);
