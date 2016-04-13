@@ -14,10 +14,9 @@ public class OrganisationImpl implements Organisation {
 
 	private final String GET_ORGANISATIONUNIT = "SELECT * FROM organisation WHERE id = ?";
 	private final String GET_CHILDREN = "SELECT * FROM organisation WHERE parent_id = ?";
-	private final String GET_ALL_CHILDREN = "SELECT * FROM organisation WHERE id = ?"
-			+ "WITH RECURSIVE tree (level, parent, child) AS"
-			+ "(SELECT 1, parent_id AS parent, id as child FROM organisation where id = ?" + "UNION"
-			+ "SELECT level + 1, parent_id, id FROM organisation, tree WHERE parent_id = child)" + "SELECT * FROM tree";
+	private final String GET_ALL_CHILDREN = "WITH RECURSIVE tree (level, parent, child, name) AS "
+			+ "(SELECT 1, parent_id AS parent, id as child, name AS name FROM organisation where id = ? " + "UNION "
+			+ "SELECT level + 1, parent_id, id, name FROM organisation, tree WHERE parent_id = child) " + "SELECT * FROM tree ";
 	private final String GET_ALL_ORGANISATION_WITHOUT_PARENTS = "SELECT * FROM organisation";
 	private final String SEARCH_ORGANISATION = "SELECT * FROM organisation WHERE LOWER(name) LIKE ?";
 	DataAccessForSQL da;
@@ -92,9 +91,9 @@ public class OrganisationImpl implements Organisation {
 			resultSet = statement.executeQuery();
 			while (resultSet.next()) {
 				OrganisationUnit orgUnit = new OrganisationUnit();
-				orgUnit.setId(resultSet.getInt("id"));
+				orgUnit.setId(resultSet.getInt("child"));
 				orgUnit.setName(resultSet.getString("name"));
-				orgUnit.setParentId(resultSet.getInt("parent_id"));
+				orgUnit.setParentId(resultSet.getInt("parent"));
 
 				orgList.add(orgUnit);
 
@@ -102,6 +101,7 @@ public class OrganisationImpl implements Organisation {
 			resultSet.close();
 			statement.close();
 		} catch (SQLException e) {
+			e.printStackTrace();
 			throw new PersistenceFailureException("Persistence Failure - didn't get organisation unit");
 		}
 

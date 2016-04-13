@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import exceptions.PersistenceFailureException;
+import organisation.OrganisationImpl;
 import organisation.OrganisationUnit;
 import persistence.DataAccess;
 import persistence.DataAccessForSQL;
@@ -47,6 +48,7 @@ public class SecurityImpl implements Security {
 					statement.close();
 					da.close();
 					userLoggedIn = getUser(userId);
+					break;
 				} else {
 					loginSuccess = false;
 					userLoggedIn = null;
@@ -55,6 +57,7 @@ public class SecurityImpl implements Security {
 			}
 		} catch (SQLException e) {
 			da.close();
+			e.printStackTrace();
 			throw new PersistenceFailureException("Persistence Failure - didn't get user data");
 		}
 		
@@ -71,8 +74,9 @@ public class SecurityImpl implements Security {
 
 		try {
 			statement = da.getConnection().prepareStatement(GET_USER_FROM_ID);
-			resultSet = statement.executeQuery();
 			statement.setInt(1, userId);
+			resultSet = statement.executeQuery();
+		
 			while (resultSet.next()) {
 				user.setEmail(resultSet.getString("EMAIL"));
 
@@ -90,7 +94,6 @@ public class SecurityImpl implements Security {
 	@Override
 	public int getIdOfUserLoggedIn() {
 		int Id = -1;
-		System.out.println(userLoggedIn);
 		if (userLoggedIn != null) {
 			Id = userLoggedIn.getId();
 		}
@@ -107,8 +110,8 @@ public class SecurityImpl implements Security {
 
 		try {
 			statement = da.getConnection().prepareStatement(GET_PERMISSION_FROM_ID);
-			resultSet = statement.executeQuery();
 			statement.setInt(1, permissionId);
+			resultSet = statement.executeQuery();
 			while (resultSet.next()) {
 				permission.setName(resultSet.getString("PERMISSION_NAME"));
 
@@ -160,8 +163,9 @@ public class SecurityImpl implements Security {
 
 		try {
 			statement = da.getConnection().prepareStatement(SEARCH_PERMISSION);
-			resultSet = statement.executeQuery();
 			statement.setString(1, searchString);
+			resultSet = statement.executeQuery();
+			
 
 			while (resultSet.next()) {
 				Permission permission = new Permission();
@@ -272,26 +276,34 @@ public class SecurityImpl implements Security {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		boolean hasAccess = false;
+		boolean isChild = false;
 		da = new DataAccessForSQL();
+		OrganisationImpl org = new OrganisationImpl();
 		
 		try {
 			statement = da.getConnection().prepareStatement(GET_ORGANISATION);
 			statement.setInt(1, userId);
 			resultSet = statement.executeQuery();
 			while (resultSet.next()) {
-				if(organizationId == resultSet.getLong("organisation_id")) {
+				for(OrganisationUnit orgUnit : org.getAllChildren(resultSet.getLong("id"))) {
+					if(orgUnit.getId() == organizationId) {
+						isChild = true;
+					}
+				}
+				
+				if(isChild) {
 					resultSet.close();
 					statement.close();
 					da.close();
 					hasAccess = hasUserPermission(userId, permissionId);
+					break;
 				} else {
+					System.out.println("eg");
 					hasAccess = false;
-					resultSet.close();
-					statement.close();
-					da.close();
 				}
 			}
 		} catch (SQLException e) {
+			e.printStackTrace();
 			throw new PersistenceFailureException("Persistence Failure - didn't get organisation unit");
 		}
 
@@ -312,6 +324,7 @@ public class SecurityImpl implements Security {
 			while (resultSet.next()) {
 				if(permissionId == resultSet.getInt("permission_id")) {
 					hasPermission = true;
+					break;
 				} else {
 					hasPermission = false;
 				}
