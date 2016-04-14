@@ -31,12 +31,14 @@ CREATE UNIQUE INDEX uidx_permission_name ON permission(permission_name);
 
 CREATE TABLE user_role (
 user_id INT REFERENCES user(user_id) ON DELETE CASCADE,
-role_id INT REFERENCES role(role_id) ON DELETE CASCADE
+role_id INT REFERENCES role(role_id) ON DELETE CASCADE,
+organisation_id INT REFERENCES organisation(id) ON DELETE CASCADE
 );
 
 CREATE TABLE user_permission (
 user_id INT REFERENCES user(user_id) ON DELETE CASCADE,
-permission_id INT REFERENCES permission(permission_id) ON DELETE CASCADE
+permission_id INT REFERENCES permission(permission_id) ON DELETE CASCADE,
+organisation_id INT REFERENCES organisation(id) ON DELETE CASCADE
 );
 
 CREATE TABLE role_permission (
