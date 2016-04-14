@@ -10,7 +10,6 @@ import java.util.List;
 import exceptions.PersistenceFailureException;
 import organisation.OrganisationImpl;
 import organisation.OrganisationUnit;
-import persistence.DataAccess;
 import persistence.DataAccessForSQL;
 
 public class SecurityImpl implements Security {
