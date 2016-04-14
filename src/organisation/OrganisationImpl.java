@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import exceptions.PersistenceFailureException;
-import persistence.DataAccess;
 import persistence.DataAccessForSQL;
 
 public class OrganisationImpl implements Organisation {

@@ -19,11 +19,9 @@ public class SecurityImpl implements Security {
 	private final String GET_USER_FROM_ID = "SELECT * FROM user where user_id = ?";
 	private final String GET_PERMISSION_FROM_ID = "SELECT * FROM permission WHERE permission_id = ?";
 	private final String GET_ALL_PERMISSIONS = "SELECT * FROM permission";
-	private final String SEARCH_PERMISSION = "SELECT * FROM permission WHERE permission_name LIKE '%?%'";
+	private final String SEARCH_PERMISSION = "SELECT * FROM permission WHERE LOWER(permission_name) LIKE ?";
 	private final String GET_ALL_PERMISSIONS_FOR_USER = "SELECT * FROM user_permission WHERE user_id = ?";
-	private final String GET_USER_ORGANISATION = "SELECT * FROM user_organisation WHERE user_id = ?";
-	private final String GET_ORGANISATION = "SELECT * FROM organisation WHERE id = ?";
-	private final String CHECK_ORGANISATION = "SELECT * FROM user_organisation WHERE user_id = ?";
+	private final String GET_USER_PERMISSION_ORGANISATION = "SELECT * FROM user_permission WHERE user_id = ? AND permission_id = ?";
 	private final String CHECK_PERMISSION = "SELECT * FROM user_permission WHERE user_id = ?";
 	
 	@Override
@@ -157,24 +155,25 @@ public class SecurityImpl implements Security {
 	public List<Permission> searchPermission(String searchString) throws PersistenceFailureException {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
-		List<Permission> permissionList = new ArrayList();
+		List<Permission> permissionList = new ArrayList<>();
 		da = new DataAccessForSQL();
 
 		try {
 			statement = da.getConnection().prepareStatement(SEARCH_PERMISSION);
-			statement.setString(1, searchString);
+			statement.setString(1, "%" + searchString.toLowerCase() + "%");
 			resultSet = statement.executeQuery();
 			
 
 			while (resultSet.next()) {
 				Permission permission = new Permission();
-				permission.setName(resultSet.getString("PERMISSION_NAME"));
 				permission.setId(resultSet.getInt("PERMISSION_ID"));
+				permission.setName(resultSet.getString("PERMISSION_NAME"));
 				permissionList.add(permission);
 
 			}
 		} catch (SQLException e) {
 			da.close();
+			e.printStackTrace();
 			throw new PersistenceFailureException("Persistence Failure - didn't get permission data");
 		}
 		da.close();
@@ -218,15 +217,16 @@ public class SecurityImpl implements Security {
 	}
 
 	@Override
-	public OrganisationUnit getOrganizationUnitForUser(int userId) throws PersistenceFailureException {
+	public OrganisationUnit getOrganizationUnitForUserPermission(int userId, int permissionId) throws PersistenceFailureException {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		OrganisationUnit orgUnit = new OrganisationUnit();
 		da = new DataAccessForSQL();
 		
 		try {
-			statement = da.getConnection().prepareStatement(GET_USER_ORGANISATION);
+			statement = da.getConnection().prepareStatement(GET_USER_PERMISSION_ORGANISATION);
 			statement.setInt(1, userId);
+			statement.setInt(2, permissionId);
 			resultSet = statement.executeQuery();
 			while (resultSet.next()) {
 				int orgId = resultSet.getInt("organisation_id");
@@ -246,58 +246,25 @@ public class SecurityImpl implements Security {
 	
 	@Override
 	public OrganisationUnit getOrganisationUnit(int id) throws PersistenceFailureException {
-		PreparedStatement statement = null;
-		ResultSet resultSet = null;
-		OrganisationUnit orgUnit = new OrganisationUnit();
-		da = new DataAccessForSQL();
-		
-		try {
-			statement = da.getConnection().prepareStatement(GET_ORGANISATION);
-			statement.setInt(1, id);
-			resultSet = statement.executeQuery();
-			while (resultSet.next()) {
-				orgUnit.setId(resultSet.getInt("id"));
-				orgUnit.setName(resultSet.getString("name"));
-			}
-			resultSet.close();
-			statement.close();
-			
-		} catch (SQLException e) {
-			throw new PersistenceFailureException("Persistence Failure - didn't get organisation unit");
-		}
-
-		da.close();
-		return orgUnit;
+		OrganisationImpl orgUnit = new OrganisationImpl();
+		return orgUnit.getOrganisationUnit(id);
 	}
 
 	@Override
 	public boolean hasUserAccessToOrganizationUnit(int userId, int permissionId, long organizationId) throws PersistenceFailureException {
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
-		boolean hasAccess = false;
-		boolean isChild = false;
 		da = new DataAccessForSQL();
-		OrganisationImpl org = new OrganisationImpl();
+		boolean hasAccess = false;
 		
 		try {
-			statement = da.getConnection().prepareStatement(GET_ORGANISATION);
+			statement = da.getConnection().prepareStatement(CHECK_PERMISSION);
 			statement.setInt(1, userId);
 			resultSet = statement.executeQuery();
 			while (resultSet.next()) {
-				for(OrganisationUnit orgUnit : org.getAllChildren(resultSet.getLong("id"))) {
-					if(orgUnit.getId() == organizationId) {
-						isChild = true;
-					}
-				}
-				
-				if(isChild) {
-					resultSet.close();
-					statement.close();
-					da.close();
-					hasAccess = hasUserPermission(userId, permissionId);
-					break;
+				if(permissionId == resultSet.getInt("permission_id") && organizationId == resultSet.getInt("organisation_id")) {
+					hasAccess = true;
 				} else {
-					System.out.println("eg");
 					hasAccess = false;
 				}
 			}
@@ -307,35 +274,5 @@ public class SecurityImpl implements Security {
 		}
 
 		return hasAccess;
-	}
-
-	@Override
-	public boolean hasUserPermission(int userId, int permissionId) throws PersistenceFailureException {
-		PreparedStatement statement = null;
-		ResultSet resultSet = null;
-		boolean hasPermission = false;
-		da = new DataAccessForSQL();
-		
-		try {
-			statement = da.getConnection().prepareStatement(CHECK_PERMISSION);
-			statement.setInt(1, userId);
-			resultSet = statement.executeQuery();
-			while (resultSet.next()) {
-				if(permissionId == resultSet.getInt("permission_id")) {
-					hasPermission = true;
-					break;
-				} else {
-					hasPermission = false;
-				}
-			}
-			resultSet.close();
-			statement.close();
-			
-		} catch (SQLException e) {
-			throw new PersistenceFailureException("Persistence Failure - didn't get organisation unit");
-		}
-
-		da.close();
-		return hasPermission;
 	}
 }

@@ -22,12 +22,9 @@ public interface Security {
 	
 	public List<UserPermission> getAllPermissionsForUser(int userId) throws PersistenceFailureException;
 
-	public OrganisationUnit getOrganizationUnitForUser(int userId) throws PersistenceFailureException;
+	public OrganisationUnit getOrganizationUnitForUserPermission(int userId, int permissionId) throws PersistenceFailureException;
 	
 	public OrganisationUnit getOrganisationUnit(int id) throws PersistenceFailureException;
 	
 	public boolean hasUserAccessToOrganizationUnit(int userId, int permissionId, long organizationId) throws PersistenceFailureException;
-	
-	public boolean hasUserPermission(int userId, int permissionId) throws PersistenceFailureException;
-	
 }
